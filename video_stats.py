@@ -2,6 +2,7 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 
 load_dotenv(dotenv_path='.env')
 API_KEY = os.getenv("API_KEY")
@@ -112,8 +113,27 @@ def extract_video_data(video_ids):
         print(f"An error occurred: {e}")
         return video_data
 
+def save_to_json(video_data):
+    # 1. Define the directory and the full path
+    folder = "./data"
+    file_path = f"{folder}/YT_data_{datetime.today().strftime('%Y-%m-%d')}.json"
+    
+    try:
+        # 2. THE FIX: Create the folder if it doesn't exist
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+            print(f"Created directory: {folder}")
+
+        # 3. Save the file
+        with open(file_path, 'w') as f:
+            json.dump(video_data, f, indent=4)
+        print(f"Data saved to {file_path}")
+        
+    except Exception as e:
+        print(f"An error occurred while saving to JSON: {e}")
+
 if __name__ == "__main__":
     playlist_id = get_playlist_id()
     video_ids = get_video_ids(playlist_id)
     video_data = extract_video_data(video_ids)
-    print(video_data)
+    save_to_json(video_data)
